@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Computer Graphics - CW2</title>
+    <style>
+      body {
+        margin: 0;
+        background-color: #000;
+        color: #fff;
+        font-family: Monospace;
+        font-size: 13px;
+        line-height: 24px;
+      }
+
+      a {
+        color: #ff0;
+        text-decoration: none;
+        pointer-events: auto;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      #info {
+        position: absolute;
+        top: 0px;
+        width: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+        text-align: center;
+        pointer-events: none;
+        user-select: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="info">
+      Created by
+      <a href="https://github.com/daniilsjb" target="_blank">@daniilsjb</a>
+      using
+      <a href="https://threejs.org" target="_blank">three.js</a>
+      for an assignment.
+      <br />
+      Press 'W' to toggle wireframe, 'Q' to toggle space, 'H' to toggle controls,
+      <br />
+      'T' to translate, 'R' to rotate, 'S' to scale.
+    </div>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
