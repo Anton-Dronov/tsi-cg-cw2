@@ -1,6 +1,7 @@
 {
   "name": "tsi-cg-cw2",
   "private": true,
+  "type": "module",
   "author": "daniilsjb",
   "version": "1.0.0",
   "description": "Practical assignment for the computer graphics course at TSI, 2024.",
