@@ -1,6 +1,8 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { TransformControls } from "three/addons/controls/TransformControls.js";
+import { TeapotGeometry } from "three/addons/geometries/TeapotGeometry.js";
+import { OBJLoader } from "three/addons/loaders/OBJLoader.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { GUI } from "lil-gui";
 
@@ -8,11 +10,14 @@ import { InfiniteGridHelper } from "./InfiniteGridHelper";
 
 const textureLoader = new THREE.TextureLoader();
 const textures = [
-  "crate.jpg",
-  "benedict.png",
-  "grakovski.jpg",
-  "pavlyuk.jpg",
-  "savrasovs.jpg",
+  "textures/grakovski.jpg",
+  "textures/teapot.png",
+  "textures/earth.png",
+  "textures/spot.png",
+  "textures/tsi.png",
+  "textures/bird_diffuse.jpg",
+  "textures/bird_normal.jpg",
+  "textures/statue_diffuse.jpg",
 ].map((name) => {
   const texture = textureLoader.load(name);
   texture.wrapS = THREE.RepeatWrapping;
@@ -31,7 +36,7 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   1000.0
 );
-camera.position.set(5, 5, 10);
+camera.position.set(-1, 3, 12);
 
 // Setup the renderer.
 const renderer = new THREE.WebGLRenderer();
@@ -40,7 +45,12 @@ document.body.appendChild(renderer.domElement);
 
 // Setup the graphical user interface.
 const gui = new GUI();
-gui.addColor(scene, "background");
+gui.addColor(scene, "background").name("Background");
+
+const cameraFolder = gui.addFolder("Camera");
+cameraFolder.add(camera.position, "x").name("Position, X").listen();
+cameraFolder.add(camera.position, "y").name("Position, Y").listen();
+cameraFolder.add(camera.position, "z").name("Position, Z").listen();
 
 // Setup the Blender-like camera controls.
 const orbitControls = new OrbitControls(camera, renderer.domElement);
@@ -64,32 +74,70 @@ const selectableObjects = [];
 let selectedObject = null;
 let selectedObjectFolder = null;
 
-const objectGeometries = [
-  new THREE.CapsuleGeometry(),
-  new THREE.BoxGeometry(),
-  new THREE.SphereGeometry(),
-  new THREE.DodecahedronGeometry(),
-  new THREE.TorusGeometry(),
-];
+const geometry = new TeapotGeometry(1, 4);
+const material = new THREE.MeshStandardMaterial({ map: textures[1] });
 
-// For now, populate the scene with some cubes.
-for (let i = 0; i < 5; i++) {
-  const geometry = objectGeometries[i];
-  const material = new THREE.MeshStandardMaterial({ map: textures[i] });
+const object = new THREE.Mesh(geometry, material);
+object.scale.set(1.5, 1.5, 1.5);
+object.position.set(0, 0, 0);
+object.rotation.set(0, -0.7, 0);
 
-  const cube = new THREE.Mesh(geometry, material);
-  cube.position.set(i * 3 - 6, 0, 0);
+selectableObjects.push(object);
+scene.add(object);
 
-  selectableObjects.push(cube);
-  scene.add(cube);
-}
-
-const objectLoader = new GLTFLoader();
-objectLoader.load("suzanne.glb", (gltf) => {
+const glftLoader = new GLTFLoader();
+glftLoader.load("models/suzanne.glb", (gltf) => {
   const object = gltf.scene.children[0];
-  object.position.set(-7, 3, 4);
-  object.rotation.set(2.5, 0.8, -2.7);
-  object.material = new THREE.MeshStandardMaterial({ map: textures[1] });
+  object.position.set(-4, 3, 0.5);
+  object.rotation.set(0.07, 0.63, -0.12);
+  object.material = new THREE.MeshStandardMaterial({ map: textures[2] });
+  selectableObjects.push(object);
+  scene.add(object);
+});
+
+const objLoader = new OBJLoader();
+objLoader.load("models/spot.obj", (obj) => {
+  const object = obj.children[0];
+  object.material = new THREE.MeshStandardMaterial({ map: textures[3] });
+  object.scale.set(2, 2, 2);
+  object.position.set(4.5, 1, 1);
+  object.rotation.set(-3.05, 0.74, -3.12);
+  selectableObjects.push(object);
+  scene.add(object);
+});
+
+objLoader.load("models/rat.obj", (obj) => {
+  const object = obj.children[0];
+  object.material = new THREE.MeshStandardMaterial({ map: textures[4] });
+  object.scale.set(0.05, 0.05, 0.05);
+  object.position.set(-5, -1, 3);
+  object.rotation.set(-0.1, -0.57, 0.03);
+  selectableObjects.push(object);
+  scene.add(object);
+});
+
+objLoader.load("models/bird.obj", (obj) => {
+  const object = obj.children[0];
+  object.material = new THREE.MeshStandardMaterial({
+    map: textures[5],
+    normalMap: textures[6],
+  });
+  object.scale.set(0.15, 0.15, 0.15);
+  object.position.set(5.4, 1.96, 3.73);
+  object.rotation.set(-1.66, 0.04, 0.59);
+  selectableObjects.push(object);
+  scene.add(object);
+});
+
+objLoader.load("models/statue.obj", (obj) => {
+  const object = obj.children[0];
+  object.material = new THREE.MeshStandardMaterial({
+    map: textures[0],
+  });
+  object.scale.set(0.01, 0.01, 0.01);
+  object.position.set(5.18, -0.95, 3.99);
+  object.rotation.set(-1.66, 0.05, -0.75);
+  object.material.map.offset.set(0.2, 0.11);
   selectableObjects.push(object);
   scene.add(object);
 });
@@ -210,8 +258,8 @@ const ambientLight = new THREE.AmbientLight(0x3f3f3f, 5);
 scene.add(ambientLight);
 
 const ambientLightFolder = gui.addFolder("Ambient Light");
-ambientLightFolder.addColor(ambientLight, "color");
-ambientLightFolder.add(ambientLight, "intensity", 0, 100);
+ambientLightFolder.addColor(ambientLight, "color").name("Color");
+ambientLightFolder.add(ambientLight, "intensity", 0, 100).name("Intensity");
 
 // Add point lighting to the scene.
 createPointLightSource({ x: +5, y: +5, z: 0, color: 0xff0000, intensity: 100 });
@@ -230,9 +278,9 @@ createDirectionalLightSource({
 
 // Add spot lighting to the scene.
 createSpotLightSource({
-  x: -1.5,
-  y: 2,
-  z: -3,
+  x: -1,
+  y: 3,
+  z: -6,
   color: 0xffff80,
   intensity: 100,
 });
@@ -321,9 +369,18 @@ renderer.domElement.addEventListener("mouseup", (event) => {
 
     // Add object position controls.
     const positionFolder = selectedObjectFolder.addFolder("Position");
-    positionFolder.add(selectedObject.position, "x").listen();
-    positionFolder.add(selectedObject.position, "y").listen();
-    positionFolder.add(selectedObject.position, "z").listen();
+    positionFolder
+      .add(selectedObject.position, "x")
+      .name("Position, X")
+      .listen();
+    positionFolder
+      .add(selectedObject.position, "y")
+      .name("Position, Y")
+      .listen();
+    positionFolder
+      .add(selectedObject.position, "z")
+      .name("Position, Z")
+      .listen();
 
     const selectedLight = selectedObject.userData.light;
     if (selectedLight) {
@@ -332,41 +389,61 @@ renderer.domElement.addEventListener("mouseup", (event) => {
 
       // Add light source controls.
       const lightFolder = selectedObjectFolder.addFolder("Light");
-      lightFolder.addColor(selectedLight, "color");
+      lightFolder.addColor(selectedLight, "color").name("Color");
       if (selectedLight.type == "PointLight") {
-        lightFolder.add(selectedLight, "intensity", 0, 200);
-        lightFolder.add(selectedLight, "distance", 0, 100);
-        lightFolder.add(selectedLight, "decay", 0, 5);
+        lightFolder.add(selectedLight, "intensity", 0, 200).name("Intensity");
+        lightFolder.add(selectedLight, "distance", 0, 100).name("Distance");
+        lightFolder.add(selectedLight, "decay", 0, 5).name("Decay");
       } else if (selectedLight.type == "SpotLight") {
-        lightFolder.add(selectedLight, "intensity", 0, 200);
-        lightFolder.add(selectedLight, "penumbra", 0, 1);
-        lightFolder.add(selectedLight, "angle", 0, Math.PI / 2);
+        lightFolder.add(selectedLight, "intensity", 0, 200).name("Intensity");
+        lightFolder.add(selectedLight, "penumbra", 0, 1).name("Penumbra");
+        lightFolder.add(selectedLight, "angle", 0, Math.PI / 2).name("Angle");
       } else if (selectedLight.type == "DirectionalLight") {
-        lightFolder.add(selectedLight, "intensity", 0, 10);
+        lightFolder.add(selectedLight, "intensity", 0, 10).name("Intensity");
       }
     } else {
       // Add object scale controls.
       const scaleFolder = selectedObjectFolder.addFolder("Scale");
-      scaleFolder.add(selectedObject.scale, "x").listen();
-      scaleFolder.add(selectedObject.scale, "y").listen();
-      scaleFolder.add(selectedObject.scale, "z").listen();
+      scaleFolder.add(selectedObject.scale, "x").name("Scale, X").listen();
+      scaleFolder.add(selectedObject.scale, "y").name("Scale, Y").listen();
+      scaleFolder.add(selectedObject.scale, "z").name("Scale, Z").listen();
 
       // Add object rotation controls.
       const rotationFolder = selectedObjectFolder.addFolder("Rotation");
-      rotationFolder.add(selectedObject.rotation, "x").listen();
-      rotationFolder.add(selectedObject.rotation, "y").listen();
-      rotationFolder.add(selectedObject.rotation, "z").listen();
+      rotationFolder
+        .add(selectedObject.rotation, "x")
+        .name("Rotation, X")
+        .listen();
+      rotationFolder
+        .add(selectedObject.rotation, "y")
+        .name("Rotation, Y")
+        .listen();
+      rotationFolder
+        .add(selectedObject.rotation, "z")
+        .name("Rotation, Z")
+        .listen();
 
       // Add object texture controls.
       const textureFolder = selectedObjectFolder.addFolder("Texture");
-      textureFolder.add(selectedObject.material.map.offset, "x", 0, 1);
-      textureFolder.add(selectedObject.material.map.offset, "y", 0, 1);
-      textureFolder.add(
-        selectedObject.material.map,
-        "rotation",
-        0,
-        2 * Math.PI
-      );
+      if (selectedObject.material.normalMap) {
+        textureFolder
+          .add(selectedObject.material.normalScale, "x", 0, 10)
+          .name("Normal, X");
+        textureFolder
+          .add(selectedObject.material.normalScale, "x", 0, 10)
+          .name("Normal, Y");
+      } else {
+        textureFolder
+          .add(selectedObject.material.map.offset, "x", 0, 1)
+          .name("Offset, X");
+        textureFolder
+          .add(selectedObject.material.map.offset, "y", 0, 1)
+          .name("Offset, Y");
+      }
+
+      textureFolder
+        .add(selectedObject.material.map, "rotation", 0, 2 * Math.PI)
+        .name("Rotation");
     }
   }
 });
