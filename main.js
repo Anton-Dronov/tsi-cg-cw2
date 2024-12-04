@@ -430,7 +430,7 @@ renderer.domElement.addEventListener("mouseup", (event) => {
           .add(selectedObject.material.normalScale, "x", 0, 10)
           .name("Normal, X");
         textureFolder
-          .add(selectedObject.material.normalScale, "x", 0, 10)
+          .add(selectedObject.material.normalScale, "y", 0, 10)
           .name("Normal, Y");
       } else {
         textureFolder
