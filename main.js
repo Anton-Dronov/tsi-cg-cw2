@@ -75,7 +75,11 @@ let selectedObject = null;
 let selectedObjectFolder = null;
 
 const geometry = new TeapotGeometry(1, 4);
-const material = new THREE.MeshStandardMaterial({ map: textures[1] });
+const material = new THREE.MeshPhongMaterial({
+  map: textures[1],
+  shininess: 50,
+  specular: 0xc9c9c9,
+});
 
 const object = new THREE.Mesh(geometry, material);
 object.scale.set(1.5, 1.5, 1.5);
@@ -90,7 +94,7 @@ glftLoader.load("models/suzanne.glb", (gltf) => {
   const object = gltf.scene.children[0];
   object.position.set(-4, 3, 0.5);
   object.rotation.set(0.07, 0.63, -0.12);
-  object.material = new THREE.MeshStandardMaterial({ map: textures[2] });
+  object.material = new THREE.MeshPhongMaterial({ map: textures[2] });
   selectableObjects.push(object);
   scene.add(object);
 });
@@ -98,7 +102,7 @@ glftLoader.load("models/suzanne.glb", (gltf) => {
 const objLoader = new OBJLoader();
 objLoader.load("models/spot.obj", (obj) => {
   const object = obj.children[0];
-  object.material = new THREE.MeshStandardMaterial({ map: textures[3] });
+  object.material = new THREE.MeshPhongMaterial({ map: textures[3] });
   object.scale.set(2, 2, 2);
   object.position.set(4.5, 1, 1);
   object.rotation.set(-3.05, 0.74, -3.12);
@@ -108,7 +112,7 @@ objLoader.load("models/spot.obj", (obj) => {
 
 objLoader.load("models/rat.obj", (obj) => {
   const object = obj.children[0];
-  object.material = new THREE.MeshStandardMaterial({ map: textures[4] });
+  object.material = new THREE.MeshPhongMaterial({ map: textures[4] });
   object.scale.set(0.05, 0.05, 0.05);
   object.position.set(-5, -1, 3);
   object.rotation.set(-0.1, -0.57, 0.03);
@@ -118,7 +122,7 @@ objLoader.load("models/rat.obj", (obj) => {
 
 objLoader.load("models/bird.obj", (obj) => {
   const object = obj.children[0];
-  object.material = new THREE.MeshStandardMaterial({
+  object.material = new THREE.MeshPhongMaterial({
     map: textures[5],
     normalMap: textures[6],
   });
@@ -131,7 +135,7 @@ objLoader.load("models/bird.obj", (obj) => {
 
 objLoader.load("models/statue.obj", (obj) => {
   const object = obj.children[0];
-  object.material = new THREE.MeshStandardMaterial({
+  object.material = new THREE.MeshPhongMaterial({
     map: textures[0],
   });
   object.scale.set(0.01, 0.01, 0.01);
@@ -263,6 +267,7 @@ ambientLightFolder.add(ambientLight, "intensity", 0, 100).name("Intensity");
 
 // Add point lighting to the scene.
 createPointLightSource({ x: +5, y: +5, z: 0, color: 0xff0000, intensity: 100 });
+createPointLightSource({ x: -5, y: +5, z: 0, color: 0x00ff00, intensity: 100 });
 createPointLightSource({ x: -5, y: -5, z: 0, color: 0x0000ff, intensity: 100 });
 
 // Add directional lighting to the scene.
